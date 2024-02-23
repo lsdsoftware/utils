@@ -1,4 +1,4 @@
-import lineSplitStreamTests from "./line-split-stream.test"
+import lineSplitStreamTests from "./line-reader.test"
 import rateLimiterTests from "./rate-limiter.test"
 import stateMachineTests from "./state-machine.test"
 

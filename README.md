@@ -158,16 +158,11 @@ conMgr.shutdown()
 
 
 
-### Line Split Stream
-A Transform stream that transforms a byte stream into lines of text (by GPT-4)
+### Line Reader
+Split text into lines
 
 ```typescript
-import { makeLineSplitStream } from "@lsdsoftware/utils"
+import { makeLineReader } from "@lsdsoftware/utils"
 
-const splitter = makeLineSplitStream()
-splitter.on('data', line => console.log('Received line:', line))
-
-// Simulating input
-splitter.write('This is a line\nThis is another line\nAnd this is a line as well')
-splitter.end() // End the stream to see the _flush effect.
+myStream.pipe(makeLineReader(line => console.log(line)))
 ```

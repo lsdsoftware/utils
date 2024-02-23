@@ -9,50 +9,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const line_split_stream_1 = require("./line-split-stream");
+const line_reader_1 = require("./line-reader");
 const assert = require("assert");
 exports.default = {
     lineSplitStream1() {
         return __awaiter(this, void 0, void 0, function* () {
-            const splitter = (0, line_split_stream_1.makeLineSplitStream)();
+            const lines = [];
+            const splitter = (0, line_reader_1.makeLineReader)(line => lines.push(line));
             splitter.write('This is a line\nThis is another line\nAnd this is a line as well');
             splitter.end();
-            const lines = yield new Promise(fulfill => {
-                let accum = [];
-                splitter.on('data', line => accum.push(line));
-                splitter.on('end', () => fulfill(accum));
-            });
-            assert(lines[0] == "This is a line\n" &&
-                lines[1] == "This is another line\n" &&
-                lines[2] == "And this is a line as well\n");
+            assert(lines[0] == "This is a line" &&
+                lines[1] == "This is another line" &&
+                lines[2] == "And this is a line as well");
         });
     },
     lineSplitStream2() {
         return __awaiter(this, void 0, void 0, function* () {
-            const splitter = (0, line_split_stream_1.makeLineSplitStream)();
+            const lines = [];
+            const splitter = (0, line_reader_1.makeLineReader)(line => lines.push(line));
             splitter.write('\nThis is a line\n');
             splitter.end();
-            const lines = yield new Promise(fulfill => {
-                let accum = [];
-                splitter.on('data', line => accum.push(line));
-                splitter.on('end', () => fulfill(accum));
-            });
-            assert(lines[0] == "\n" &&
-                lines[1] == "This is a line\n");
+            assert(lines[0] == "" &&
+                lines[1] == "This is a line");
         });
     },
     lineSplitStream3() {
         return __awaiter(this, void 0, void 0, function* () {
-            const splitter = (0, line_split_stream_1.makeLineSplitStream)();
+            const lines = [];
+            const splitter = (0, line_reader_1.makeLineReader)(line => lines.push(line));
             splitter.write('\n\n');
             splitter.end();
-            const lines = yield new Promise(fulfill => {
-                let accum = [];
-                splitter.on('data', line => accum.push(line));
-                splitter.on('end', () => fulfill(accum));
-            });
-            assert(lines[0] == "\n" &&
-                lines[1] == "\n");
+            assert(lines[0] == "" &&
+                lines[1] == "");
         });
     },
 };
