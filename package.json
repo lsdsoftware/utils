@@ -1,0 +1,27 @@
+{
+  "name": "@lsdsoftware/utils",
+  "version": "1.0.0",
+  "description": "Useful JavaScript utilities",
+  "main": "dist/index.js",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node dist/index.test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsdsoftware/utils.git"
+  },
+  "author": "Hai Phan <hai.phan@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lsdsoftware/utils/issues"
+  },
+  "homepage": "https://github.com/lsdsoftware/utils#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.20",
+    "typescript": "^5.3.3"
+  }
+}
