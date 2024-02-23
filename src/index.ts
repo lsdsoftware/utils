@@ -3,6 +3,7 @@ import { makeStateMachine } from "./state-machine"
 import { makeConnectionManager } from "./connection-manager"
 import { makeMessageDispatcher } from "./message-dispatcher"
 import { makeRateLimiter } from "./rate-limiter"
+import { makeSemaphore } from "./semaphore"
 
 export {
   makeLineReader,
@@ -10,4 +11,5 @@ export {
   makeConnectionManager,
   makeMessageDispatcher,
   makeRateLimiter,
+  makeSemaphore,
 }
