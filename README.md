@@ -51,10 +51,6 @@ sm.getState()   //BUSY
 ### Message Dispatcher
 Dispatch messages to handlers.  This utility assumes messages are one of three types: request, response, or notification; and follow a predefined format (see type definition below).
 
-Call `dispatch` to dispatch a message.  Requests and notifications are dispatched to request handlers that you provided at construction.  Responses are dispatched to response listeners, you listen for response by calling `waitForResponse`.
-
-A _myAddress_ parameter provided at construction is used to filter messages.  Only requests and notifications whose _to_ attribute matches _myAddress_ will be processed.
-
 ```typescript
 interface Request {
   to: string
@@ -78,6 +74,10 @@ interface Response {
   result: unknown
 }
 ```
+
+Call `dispatch` to dispatch a message you received.  Requests and notifications are dispatched to request handlers that you provide at construction.  Responses are dispatched to response listeners; to listen for a response, call `waitForResponse` with the request ID.
+
+A _myAddress_ parameter provided at construction is used to filter messages.  Only requests and notifications whose _to_ attribute matches _myAddress_ will be processed.
 
 ```typescript
 import { makeMessageDispatcher } from "@lsdsoftware/utils"
