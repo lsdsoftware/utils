@@ -131,33 +131,6 @@ function handleRequest(userId, req) {
 
 
 
-### Connection Manager
-Takes a connect() method and:
-- Only call it to create a connection when needed
-- Automatically retry on failure
-- Automatically reconnect if the previous connection was closed
-- Properly handle shutdown sequence
-
-```typescript
-import { makeConnectionManager } from "@lsdsoftware/utils"
-
-const conMgr = new ConnectionManager({
-  async connect() {
-    //...
-    return connection
-  },
-  retryDelay: 10*1000
-})
-
-//wherever you need the connection
-const connection = await conMgr.get()
-
-//shutdown
-conMgr.shutdown()
-```
-
-
-
 ### Line Reader
 Split text into lines
 
