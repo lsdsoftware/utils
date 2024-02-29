@@ -16,5 +16,5 @@ export function makeAbortable() {
     abort,
     promise,
     checkpoint
-  ]
+  ] as const
 }

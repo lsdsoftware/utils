@@ -1,1 +1,1 @@
-export declare function makeAbortable(): (Promise<never> | ((reason: unknown) => void))[];
+export declare function makeAbortable(): readonly [(reason: unknown) => void, Promise<never>, () => void];
