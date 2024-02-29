@@ -10,9 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const line_reader_test_1 = require("./line-reader.test");
-const rate_limiter_test_1 = require("./rate-limiter.test");
-const state_machine_test_1 = require("./state-machine.test");
-run(Object.assign(Object.assign(Object.assign({}, line_reader_test_1.default), rate_limiter_test_1.default), state_machine_test_1.default))
+run(Object.assign({}, line_reader_test_1.default))
     .catch(console.error);
 function run(tests) {
     return __awaiter(this, void 0, void 0, function* () {

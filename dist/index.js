@@ -1,13 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeSemaphore = exports.makeRateLimiter = exports.makeMessageDispatcher = exports.makeStateMachine = exports.makeLineReader = void 0;
+exports.makeAbortable = exports.makeSemaphore = exports.makeLineReader = void 0;
 const line_reader_1 = require("./line-reader");
 Object.defineProperty(exports, "makeLineReader", { enumerable: true, get: function () { return line_reader_1.makeLineReader; } });
-const state_machine_1 = require("./state-machine");
-Object.defineProperty(exports, "makeStateMachine", { enumerable: true, get: function () { return state_machine_1.makeStateMachine; } });
-const message_dispatcher_1 = require("./message-dispatcher");
-Object.defineProperty(exports, "makeMessageDispatcher", { enumerable: true, get: function () { return message_dispatcher_1.makeMessageDispatcher; } });
-const rate_limiter_1 = require("./rate-limiter");
-Object.defineProperty(exports, "makeRateLimiter", { enumerable: true, get: function () { return rate_limiter_1.makeRateLimiter; } });
 const semaphore_1 = require("./semaphore");
 Object.defineProperty(exports, "makeSemaphore", { enumerable: true, get: function () { return semaphore_1.makeSemaphore; } });
+const abortable_1 = require("./abortable");
+Object.defineProperty(exports, "makeAbortable", { enumerable: true, get: function () { return abortable_1.makeAbortable; } });

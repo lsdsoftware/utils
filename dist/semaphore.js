@@ -13,12 +13,13 @@ exports.makeSemaphore = void 0;
 function makeSemaphore(count) {
     const waiters = [];
     return {
-        runTask(task) {
+        runTask(task, checkpoint) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (count > 0)
                     count--;
                 else
                     yield new Promise(f => waiters.push(f));
+                checkpoint === null || checkpoint === void 0 ? void 0 : checkpoint();
                 try {
                     return yield task();
                 }

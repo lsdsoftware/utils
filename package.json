@@ -1,6 +1,6 @@
 {
   "name": "@lsdsoftware/utils",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Useful JavaScript utilities",
   "main": "dist/index.js",
   "files": [
