@@ -19,8 +19,8 @@ function makeSemaphore(count) {
                     count--;
                 else
                     yield new Promise(f => waiters.push(f));
-                checkpoint === null || checkpoint === void 0 ? void 0 : checkpoint();
                 try {
+                    checkpoint === null || checkpoint === void 0 ? void 0 : checkpoint();
                     return yield task();
                 }
                 finally {

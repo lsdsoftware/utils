@@ -5,8 +5,8 @@ export function makeSemaphore(count: number) {
     async runTask<T>(task: () => Promise<T>, checkpoint?: () => void): Promise<T> {
       if (count > 0) count--
       else await new Promise(f => waiters.push(f))
-      checkpoint?.()
       try {
+        checkpoint?.()
         return await task()
       }
       finally {

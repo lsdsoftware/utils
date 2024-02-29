@@ -10,7 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const line_reader_test_1 = require("./line-reader.test");
-run(Object.assign({}, line_reader_test_1.default))
+const semaphore_test_1 = require("./semaphore.test");
+const abortable_test_1 = require("./abortable.test");
+run(Object.assign(Object.assign(Object.assign({}, line_reader_test_1.default), semaphore_test_1.default), abortable_test_1.default))
     .catch(console.error);
 function run(tests) {
     return __awaiter(this, void 0, void 0, function* () {

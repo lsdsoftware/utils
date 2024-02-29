@@ -1,6 +1,6 @@
 declare const _default: {
-    lineSplitStream1(): Promise<void>;
-    lineSplitStream2(): Promise<void>;
-    lineSplitStream3(): Promise<void>;
+    lineReader1(): Promise<void>;
+    lineReader2(): Promise<void>;
+    lineReader3(): Promise<void>;
 };
 export default _default;

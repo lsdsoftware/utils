@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const line_reader_1 = require("./line-reader");
 const assert = require("assert");
 exports.default = {
-    lineSplitStream1() {
+    lineReader1() {
         return __awaiter(this, void 0, void 0, function* () {
             const lines = [];
             const splitter = (0, line_reader_1.makeLineReader)(line => lines.push(line));
@@ -23,7 +23,7 @@ exports.default = {
                 lines[2] == "And this is a line as well");
         });
     },
-    lineSplitStream2() {
+    lineReader2() {
         return __awaiter(this, void 0, void 0, function* () {
             const lines = [];
             const splitter = (0, line_reader_1.makeLineReader)(line => lines.push(line));
@@ -33,7 +33,7 @@ exports.default = {
                 lines[1] == "This is a line");
         });
     },
-    lineSplitStream3() {
+    lineReader3() {
         return __awaiter(this, void 0, void 0, function* () {
             const lines = [];
             const splitter = (0, line_reader_1.makeLineReader)(line => lines.push(line));

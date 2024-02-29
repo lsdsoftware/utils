@@ -1,7 +1,11 @@
-import lineSplitStreamTests from "./line-reader.test"
+import lineReaderTests from "./line-reader.test"
+import semaphoreTest from "./semaphore.test"
+import abortableTest from "./abortable.test"
 
 run({
-    ...lineSplitStreamTests,
+    ...lineReaderTests,
+    ...semaphoreTest,
+    ...abortableTest,
   })
   .catch(console.error)
 

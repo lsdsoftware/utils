@@ -3,7 +3,7 @@ import * as assert from "assert"
 
 
 export default {
-  async lineSplitStream1() {
+  async lineReader1() {
     const lines: string[] = []
     const splitter = makeLineReader(line => lines.push(line))
     splitter.write('This is a line\nThis is another line\nAnd this is a line as well')
@@ -16,7 +16,7 @@ export default {
     )
   },
 
-  async lineSplitStream2() {
+  async lineReader2() {
     const lines: string[] = []
     const splitter = makeLineReader(line => lines.push(line))
     splitter.write('\nThis is a line\n')
@@ -28,7 +28,7 @@ export default {
     )
   },
 
-  async lineSplitStream3() {
+  async lineReader3() {
     const lines: string[] = []
     const splitter = makeLineReader(line => lines.push(line))
     splitter.write('\n\n')
