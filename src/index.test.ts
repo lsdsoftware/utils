@@ -1,11 +1,9 @@
 import lineReaderTests from "./line-reader.test"
 import semaphoreTest from "./semaphore.test"
-import abortableTest from "./abortable.test"
 
 run({
     ...lineReaderTests,
     ...semaphoreTest,
-    ...abortableTest,
   })
   .catch(console.error)
 

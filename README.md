@@ -25,38 +25,9 @@ const result = await semaphore.runTask(async () => {
 ```
 
 
-### Abortable
-If you have an async operation, e.g.:
+### Connect Socket
+Observable wrapper for net.connect (see connect-socket.test.ts for usage)
 
-```typescript
-async function myTask() {
-  await step1()
-  await step2()
-  await step3()
-}
-```
 
-And you need to make it abortable:
-```typescript
-import { makeAbortable } from "@lsdsoftware/utils"
-
-const [abort, abortPromise, checkpoint] = makeAbortable()
-
-//modify task to support early termination
-async function myTask() {
-  await step1
-  checkpoint()  //will throw if aborted
-  await step2
-  checkpoint()
-  await step3
-}
-
-//call abort() when you need to
-setTimeout(() => abort(new Error("Timeout")), 5000)
-
-//use Promise.race to run your task
-const result = await Promise.race([
-  abortPromise,
-  myTask()
-])
-```
+### Spawn Child
+Observable wrapper for child_process.spawn (see spawn-child.test.ts for usage)

@@ -1,4 +1,5 @@
 import { makeLineReader } from "./line-reader";
 import { makeSemaphore } from "./semaphore";
-import { makeAbortable } from "./abortable";
-export { makeLineReader, makeSemaphore, makeAbortable, };
+import { connectSocket } from "./connect-socket";
+import { spawnChild } from "./spawn-child";
+export { makeLineReader, makeSemaphore, connectSocket, spawnChild, };

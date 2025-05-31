@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeAbortable = exports.makeSemaphore = exports.makeLineReader = void 0;
+exports.spawnChild = exports.connectSocket = exports.makeSemaphore = exports.makeLineReader = void 0;
 const line_reader_1 = require("./line-reader");
 Object.defineProperty(exports, "makeLineReader", { enumerable: true, get: function () { return line_reader_1.makeLineReader; } });
 const semaphore_1 = require("./semaphore");
 Object.defineProperty(exports, "makeSemaphore", { enumerable: true, get: function () { return semaphore_1.makeSemaphore; } });
-const abortable_1 = require("./abortable");
-Object.defineProperty(exports, "makeAbortable", { enumerable: true, get: function () { return abortable_1.makeAbortable; } });
+const connect_socket_1 = require("./connect-socket");
+Object.defineProperty(exports, "connectSocket", { enumerable: true, get: function () { return connect_socket_1.connectSocket; } });
+const spawn_child_1 = require("./spawn-child");
+Object.defineProperty(exports, "spawnChild", { enumerable: true, get: function () { return spawn_child_1.spawnChild; } });

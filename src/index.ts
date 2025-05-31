@@ -1,9 +1,11 @@
 import { makeLineReader } from "./line-reader"
 import { makeSemaphore } from "./semaphore"
-import { makeAbortable } from "./abortable"
+import { connectSocket } from "./connect-socket"
+import { spawnChild } from "./spawn-child"
 
 export {
   makeLineReader,
   makeSemaphore,
-  makeAbortable,
+  connectSocket,
+  spawnChild,
 }
