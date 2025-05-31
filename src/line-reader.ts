@@ -14,7 +14,7 @@ export function makeLineReader(lineCallback: (line: string) => void) {
     write(chunk, encoding, callback) {
       // encoding param here is irrelevant because it applies only to string chunks
       const chunkStr = remainder + decoder.write(chunk)
-      const lines = chunkStr.split('\n')
+      const lines = chunkStr.split(/\r?\n/)
 
       // Keep the last line in remainder if it doesn't end with a newline character.
       remainder = lines.pop()!

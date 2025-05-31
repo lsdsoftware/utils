@@ -6,7 +6,7 @@ export default {
   async lineReader1() {
     const lines: string[] = []
     const splitter = makeLineReader(line => lines.push(line))
-    splitter.write('This is a line\nThis is another line\nAnd this is a line as well')
+    splitter.write('This is a line\nThis is another line\r\nAnd this is a line as well')
     splitter.end()
 
     assert(

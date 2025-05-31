@@ -16,7 +16,7 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             const lines = [];
             const splitter = (0, line_reader_1.makeLineReader)(line => lines.push(line));
-            splitter.write('This is a line\nThis is another line\nAnd this is a line as well');
+            splitter.write('This is a line\nThis is another line\r\nAnd this is a line as well');
             splitter.end();
             assert(lines[0] == "This is a line" &&
                 lines[1] == "This is another line" &&
