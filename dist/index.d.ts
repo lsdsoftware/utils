@@ -1,5 +1,4 @@
-import { makeLineReader } from "./line-reader";
-import { makeSemaphore } from "./semaphore";
-import { connectSocket } from "./connect-socket";
-import { spawnChild } from "./spawn-child";
-export { makeLineReader, makeSemaphore, connectSocket, spawnChild, };
+export * from './connect-socket.js';
+export * from './line-reader.js';
+export * from './semaphore.js';
+export * from './spawn-child.js';

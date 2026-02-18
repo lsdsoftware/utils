@@ -1,8 +1,10 @@
-import { makeSemaphore } from "./semaphore"
-import * as assert from "assert"
+import { describe } from "@service-broker/test-utils"
+import assert from "assert"
+import { makeSemaphore } from "./semaphore.js"
 
-export default {
-  async semaphore1() {
+describe('semaphore', ({ test }) => {
+
+  test('one', async () => {
     const sema = makeSemaphore(1)
     const output = [] as number[]
     await Promise.all([
@@ -24,9 +26,9 @@ export default {
       output[2] == 3 &&
       output[3] == 4
     )
-  },
+  })
 
-  async semaphore2() {
+  test('two', async () => {
     const sema = makeSemaphore(2)
     const output = [] as number[]
     await Promise.all([
@@ -48,9 +50,9 @@ export default {
       output[2] == 4 &&
       output[3] == 2
     )
-  },
+  })
 
-  async semaphore3() {
+  test('three', async () => {
     const sema = makeSemaphore(1)
     const output = [] as number[]
     await Promise.all([
@@ -75,5 +77,5 @@ export default {
       output[0] == 3 &&
       output[1] == 4
     )
-  },
-}
+  })
+})

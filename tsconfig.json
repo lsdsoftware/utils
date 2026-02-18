@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ES6",
+    "module": "nodenext",
+    "target": "es2020",
+    "moduleResolution": "nodenext",
     "strict": true,
     "declaration": true,
     "newLine": "lf",
-    "moduleResolution": "Node",
     "rootDir": "src",
     "outDir": "dist"
   },

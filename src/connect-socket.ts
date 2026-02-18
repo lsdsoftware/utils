@@ -2,20 +2,18 @@ import { NetConnectOpts, Socket, createConnection } from "net"
 import * as rxjs from "rxjs"
 
 export interface Connection {
+  socket: Socket
   data$: rxjs.Observable<string | Buffer>
   error$: rxjs.Observable<Error>
-  close$: rxjs.Observable<string>
-  write: Socket['write']
-  end: Socket['end']
+  timeout$: rxjs.Observable<void>
+  close$: rxjs.Observable<boolean>
 }
 
 export function connectSocket(options: NetConnectOpts & {
-  timeout?: number
   encoding?: BufferEncoding
 }) {
   return rxjs.defer(() => {
     const sock = createConnection(options)
-    if (options.timeout) sock.setTimeout(options.timeout)
     if (options.encoding) sock.setEncoding(options.encoding)
     return rxjs.race(
       rxjs.fromEvent(sock, 'error').pipe(
@@ -31,17 +29,16 @@ export function connectSocket(options: NetConnectOpts & {
 
 function makeConnection(sock: Socket): Connection {
   return {
-    data$: rxjs.fromEvent(sock, 'data', (data: string | Buffer) => data).pipe(
+    socket: sock,
+    data$: (rxjs.fromEvent(sock, 'data') as Connection['data$']).pipe(
       rxjs.takeUntil(
         rxjs.fromEvent(sock, 'end')
       )
     ),
-    error$: rxjs.fromEvent(sock, 'error', (err: Error) => err),
-    close$: rxjs.merge(
-      rxjs.fromEvent(sock, 'close', (hadError: boolean) => hadError ? 'Normal close' : 'Close with error'),
-      rxjs.fromEvent(sock, 'timeout', () => 'Socket timeout')
+    error$: rxjs.fromEvent(sock, 'error') as Connection['error$'],
+    timeout$: rxjs.fromEvent(sock, 'timeout') as Connection['timeout$'],
+    close$: (rxjs.fromEvent(sock, 'close') as Connection['close$']).pipe(
+      rxjs.take(1)
     ),
-    write: sock.write.bind(sock),
-    end: sock.end.bind(sock)
   }
 }

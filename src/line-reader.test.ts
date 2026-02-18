@@ -1,9 +1,10 @@
-import { makeLineReader } from "./line-reader"
-import * as assert from "assert"
+import { describe } from "@service-broker/test-utils"
+import assert from "assert"
+import { makeLineReader } from "./line-reader.js"
 
+describe('line-reader', ({ test }) => {
 
-export default {
-  async lineReader1() {
+  test('one', () => {
     const lines: string[] = []
     const splitter = makeLineReader(line => lines.push(line))
     splitter.write('This is a line\nThis is another line\r\nAnd this is a line as well')
@@ -14,9 +15,9 @@ export default {
       lines[1] == "This is another line" &&
       lines[2] == "And this is a line as well"
     )
-  },
+  })
 
-  async lineReader2() {
+  test('two', () => {
     const lines: string[] = []
     const splitter = makeLineReader(line => lines.push(line))
     splitter.write('\nThis is a line\n')
@@ -26,9 +27,9 @@ export default {
       lines[0] == "" &&
       lines[1] == "This is a line"
     )
-  },
+  })
 
-  async lineReader3() {
+  test('three', () => {
     const lines: string[] = []
     const splitter = makeLineReader(line => lines.push(line))
     splitter.write('\n\n')
@@ -38,5 +39,5 @@ export default {
       lines[0] == "" &&
       lines[1] == ""
     )
-  },
-}
+  })
+})

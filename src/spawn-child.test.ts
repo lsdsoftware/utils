@@ -1,54 +1,43 @@
+import { describe, expect } from "@service-broker/test-utils"
+import assert from "assert"
+import { spawn } from "child_process"
 import * as rxjs from "rxjs"
-import { spawnChild } from "./spawn-child"
+import { spawnChild } from "./spawn-child.js"
 
-spawnChild('cat').pipe(
-  rxjs.tap({
-    error(err) {
-      console.error("Child spawn fail", err)
-    }
-  }),
-  rxjs.retry({ delay: 10000 }),
-  rxjs.exhaustMap(child => {
-    console.info("Child spawned", child.pid)
-    const write = (text: string) => {
-      console.log("Child write:", text)
-      child.stdin.write(text)
-    }
-    return rxjs.merge(
-      child.stdout$.pipe(
-        rxjs.tap(data => console.log("Child stdout:", data.toString()))
-      ),
-      child.stderr$.pipe(
-        rxjs.tap(data => console.log("Child stderr:", data.toString()))
-      ),
-      child.error$.pipe(
-        rxjs.tap(err => console.info("Child error:", err))
-      )
-    ).pipe(
-      rxjs.takeUntil(
-        child.close$.pipe(
-          rxjs.tap(code => console.log("Child close:", code))
-        )
-      ),
-      rxjs.finalize(() => child.kill()),
-      rxjs.ignoreElements(),
-      rxjs.startWith({ write }),
-      rxjs.endWith(null)
-    )
-  }),
-  rxjs.repeat({ delay: 1000, count: 2 }),
+describe('spawn-child', ({ test }) => {
 
-  rxjs.switchMap(child =>
-    rxjs.iif(
-      () => child != null,
-      rxjs.fromEvent(process.stdin, 'data', (data: Buffer) => data).pipe(
-        rxjs.tap(data => child!.write(data.toString().trim()))
-      ),
-      rxjs.EMPTY
+  test('fail', () =>
+    rxjs.lastValueFrom(
+      spawnChild(() => spawn('bad-cmd'))
+    ).then(
+      () => assert(false, '!throw'),
+      err => expect(err.code, 'ENOENT')
     )
   )
-).subscribe({
-  complete() {
-    process.stdin.pause()
-  }
+
+  test('success', () =>
+    rxjs.lastValueFrom(
+      spawnChild(() => spawn('echo Hello, world && echo Bye, world >&2 && exit 42', { shell: true })).pipe(
+        rxjs.exhaustMap(child =>
+          rxjs.forkJoin({
+            stdout: (child.stdout$ as rxjs.Observable<string>).pipe(
+              rxjs.takeUntil(child.close$),
+              rxjs.reduce((acc, chunk) => acc.concat(chunk), '')
+            ),
+            stderr: (child.stderr$ as rxjs.Observable<string>).pipe(
+              rxjs.takeUntil(child.close$),
+              rxjs.reduce((acc, chunk) => acc.concat(chunk), '')
+            ),
+            exitCode: child.close$
+          })
+        )
+      )
+    ).then(
+      ({ stdout, stderr, exitCode }) => {
+        expect(stdout, 'Hello, world\n')
+        expect(stderr, 'Bye, world\n')
+        expect(exitCode, 42)
+      }
+    )
+  )
 })

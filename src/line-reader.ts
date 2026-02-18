@@ -8,11 +8,7 @@ export function makeLineReader(lineCallback: (line: string) => void) {
   const decoder = new StringDecoder()
 
   return new Writable({
-    //prevent auto-decoding string to Buffer, so processed chunk could be either string or Buffer
-    decodeStrings: false,
-
     write(chunk, encoding, callback) {
-      // encoding param here is irrelevant because it applies only to string chunks
       const chunkStr = remainder + decoder.write(chunk)
       const lines = chunkStr.split(/\r?\n/)
 

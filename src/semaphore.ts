@@ -1,10 +1,10 @@
 
 export function makeSemaphore(count: number) {
-  const waiters: Function[] = []
+  const waiters: (() => void)[] = []
   return {
     async runTask<T>(task: () => Promise<T>, onStart?: () => void): Promise<T> {
       if (count > 0) count--
-      else await new Promise(f => waiters.push(f))
+      else await new Promise<void>(f => waiters.push(f))
       try {
         onStart?.()
         return await task()

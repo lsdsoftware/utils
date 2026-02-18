@@ -1,6 +1,7 @@
 {
   "name": "@lsdsoftware/utils",
-  "version": "1.1.1",
+  "type": "module",
+  "version": "2.0.0",
   "description": "Useful JavaScript utilities",
   "main": "dist/index.js",
   "files": [
@@ -21,8 +22,9 @@
   },
   "homepage": "https://github.com/lsdsoftware/utils#readme",
   "devDependencies": {
-    "@types/node": "^20.11.20",
-    "typescript": "^5.3.3"
+    "@service-broker/test-utils": "^1.1.2",
+    "@types/node": "^25.2.3",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "rxjs": "^7.8.2"
