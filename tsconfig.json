@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "module": "nodenext",
-    "target": "es2020",
+    "target": "es2022",
     "moduleResolution": "nodenext",
+    "types": ["node"],
     "strict": true,
     "declaration": true,
     "newLine": "lf",
