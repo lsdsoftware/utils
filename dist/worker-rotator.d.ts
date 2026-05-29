@@ -17,9 +17,10 @@ export interface WorkerRotatorOptions<R, W extends Worker<R>> {
     workerTtlMs: number;
     request$: rxjs.Observable<R>;
     maxPendingRequests?: number;
+    onEvent?: (event: WorkerRotatorEvent<W>) => void;
 }
 /**
- * Rotates workers over a request stream and emits worker lifecycle events.
+ * Rotates workers over a request stream.
  * See the README for the lifecycle and buffering contract.
  */
-export declare function makeWorkerRotator<R, W extends Worker<R>>({ makeWorker, workerTtlMs, request$, maxPendingRequests }: WorkerRotatorOptions<R, W>): rxjs.Observable<WorkerRotatorEvent<W>>;
+export declare function makeWorkerRotator<R, W extends Worker<R>>({ makeWorker, workerTtlMs, request$, maxPendingRequests, onEvent }: WorkerRotatorOptions<R, W>): rxjs.Observable<never>;

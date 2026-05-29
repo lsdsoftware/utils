@@ -17,6 +17,7 @@ export interface CLIWorkerRotatorOptions {
   workerTtlMs: number
   request$: rxjs.Observable<CLIRequest>
   maxPendingRequests?: number
+  onEvent?: (event: CLIWorkerRotatorEvent) => void
 }
 
 /**
@@ -28,16 +29,16 @@ export function makeCLIWorkerRotator({
   spawnWorkerProcess,
   workerTtlMs,
   request$,
-  maxPendingRequests
+  maxPendingRequests,
+  onEvent
 }: CLIWorkerRotatorOptions) {
   return makeWorkerRotator({
     makeWorker: () => makeWorker(spawnWorkerProcess),
     workerTtlMs,
     request$,
-    maxPendingRequests
-  }).pipe(
-    rxjs.map(event => ({ ...event, worker: event.worker.child } as CLIWorkerRotatorEvent))
-  )
+    maxPendingRequests,
+    onEvent: event => onEvent?.({ ...event, worker: event.worker.child } as CLIWorkerRotatorEvent)
+  })
 }
 
 async function makeWorker(spawn: () => CLIWorker): Promise<Worker<CLIRequest> & { child: CLIWorker }> {

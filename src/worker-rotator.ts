@@ -20,25 +20,26 @@ export interface WorkerRotatorOptions<R, W extends Worker<R>> {
   workerTtlMs: number
   request$: rxjs.Observable<R>
   maxPendingRequests?: number
+  onEvent?: (event: WorkerRotatorEvent<W>) => void
 }
 
 /**
- * Rotates workers over a request stream and emits worker lifecycle events.
+ * Rotates workers over a request stream.
  * See the README for the lifecycle and buffering contract.
  */
 export function makeWorkerRotator<R, W extends Worker<R>>({
   makeWorker,
   workerTtlMs,
   request$,
-  maxPendingRequests = Infinity
+  maxPendingRequests = Infinity,
+  onEvent
 }: WorkerRotatorOptions<R, W>) {
   return rxjs.defer(() => {
     if (maxPendingRequests !== Infinity && (!Number.isInteger(maxPendingRequests) || maxPendingRequests < 0)) {
       throw new RangeError('maxPendingRequests must be a non-negative integer or Infinity')
     }
-    const eventSubject = new rxjs.ReplaySubject<WorkerRotatorEvent<W>>(1)
     return rxjs.defer(() => makeWorker()).pipe(
-      rxjs.tap(worker => eventSubject?.next({ type: 'hired', worker })),
+      rxjs.tap(worker => onEvent?.({ type: 'hired', worker })),
       rxjs.exhaustMap(worker =>
         rxjs.NEVER.pipe(
           rxjs.startWith(worker),
@@ -49,13 +50,13 @@ export function makeWorkerRotator<R, W extends Worker<R>>({
                 rxjs.map(() => 'Worker TTL expired')
               )
             ).pipe(
-              rxjs.tap(reason => eventSubject?.next({ type: 'quit', worker, reason }))
+              rxjs.tap(reason => onEvent?.({ type: 'quit', worker, reason }))
             )
           ),
           rxjs.endWith(null),
           rxjs.finalize(() => {
             worker.relieve()
-            eventSubject?.next({ type: 'relieved', worker })
+            onEvent?.({ type: 'relieved', worker })
           })
         )
       ),
@@ -77,8 +78,7 @@ export function makeWorkerRotator<R, W extends Worker<R>>({
           [] as R[]
         ),
         rxjs.ignoreElements()
-      ),
-      rxjs.mergeWith(eventSubject)
+      )
     )
   })
 }

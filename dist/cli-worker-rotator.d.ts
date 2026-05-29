@@ -13,10 +13,11 @@ export interface CLIWorkerRotatorOptions {
     workerTtlMs: number;
     request$: rxjs.Observable<CLIRequest>;
     maxPendingRequests?: number;
+    onEvent?: (event: CLIWorkerRotatorEvent) => void;
 }
 /**
  * Rotates child processes that communicate over stdin/stdout using a
  * line-oriented request/response protocol, such as JSONL.
  * See the README for the protocol and lifecycle contract.
  */
-export declare function makeCLIWorkerRotator({ spawnWorkerProcess, workerTtlMs, request$, maxPendingRequests }: CLIWorkerRotatorOptions): rxjs.Observable<CLIWorkerRotatorEvent>;
+export declare function makeCLIWorkerRotator({ spawnWorkerProcess, workerTtlMs, request$, maxPendingRequests, onEvent }: CLIWorkerRotatorOptions): rxjs.Observable<never>;

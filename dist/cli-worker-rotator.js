@@ -6,13 +6,14 @@ import { makeWorkerRotator } from "./worker-rotator.js";
  * line-oriented request/response protocol, such as JSONL.
  * See the README for the protocol and lifecycle contract.
  */
-export function makeCLIWorkerRotator({ spawnWorkerProcess, workerTtlMs, request$, maxPendingRequests }) {
+export function makeCLIWorkerRotator({ spawnWorkerProcess, workerTtlMs, request$, maxPendingRequests, onEvent }) {
     return makeWorkerRotator({
         makeWorker: () => makeWorker(spawnWorkerProcess),
         workerTtlMs,
         request$,
-        maxPendingRequests
-    }).pipe(rxjs.map(event => ({ ...event, worker: event.worker.child })));
+        maxPendingRequests,
+        onEvent: event => onEvent?.({ ...event, worker: event.worker.child })
+    });
 }
 async function makeWorker(spawn) {
     const child = spawn();

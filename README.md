@@ -30,22 +30,24 @@ Observable wrapper for net.connect (see connect-socket.test.ts for usage)
 
 
 ### Worker Rotator
-Rotate worker instances over a request stream and emit worker lifecycle events.
+Rotate worker instances over a request stream.
 
 ```typescript
 import { makeWorkerRotator } from "@lsdsoftware/utils"
 
-const events$ = makeWorkerRotator({
+const subscription = makeWorkerRotator({
   makeWorker,
   workerTtlMs: 60_000,
   request$,
-  maxPendingRequests: 100
-})
+  maxPendingRequests: 100,
+  onEvent: event => console.debug('[worker-rotator]', event)
+}).subscribe()
 ```
 
 Contract:
 
-- The returned observable is cold. Each subscription creates its own rotator engine and subscribes to `request$`; share the returned observable if you want one engine with multiple observers.
+- The returned observable is cold and does not emit values. Each subscription creates its own rotator engine and subscribes to `request$`; share the returned observable if you want one engine with multiple observers.
+- `onEvent` receives optional lifecycle events for logging, tracing, or diagnostics.
 - Requests emitted before the first worker is ready, or between workers, are buffered and handed to the next worker.
 - `maxPendingRequests` caps the no-worker buffer and errors the rotator when exceeded. The default is `Infinity`.
 - Pending requests are considered handed off once they are passed to `worker.process`. Delivery retries, acknowledgements, and exactly-once guarantees belong in the worker or an upstream queue.
@@ -60,14 +62,15 @@ Rotate child processes that communicate over stdin/stdout using a line-oriented 
 import { spawn } from "node:child_process"
 import { makeCLIWorkerRotator } from "@lsdsoftware/utils"
 
-const events$ = makeCLIWorkerRotator({
+const subscription = makeCLIWorkerRotator({
   spawnWorkerProcess: () => spawn("my-jsonl-worker", {
     stdio: ["pipe", "pipe", "inherit"]
   }),
   workerTtlMs: 60_000,
   request$,
-  maxPendingRequests: 100
-})
+  maxPendingRequests: 100,
+  onEvent: event => console.debug('[cli-worker-rotator]', event)
+}).subscribe()
 ```
 
 Each request writes exactly one stdin line. Each stdout line is paired with the next pending request in order. Child processes should write logs to stderr.

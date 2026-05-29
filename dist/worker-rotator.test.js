@@ -73,15 +73,16 @@ describe('worker-rotator', ({ test }) => {
         assert(err instanceof Error);
         assert.equal(err.message, 'Worker rotator exceeded max pending requests (1)');
     });
-    test('emits lifecycle events', async () => {
+    test('reports lifecycle events', async () => {
         const request$ = new rxjs.Subject;
         const worker = makeTestWorker();
         const events = [];
         const subscription = makeWorkerRotator({
             makeWorker: async () => worker,
             workerTtlMs: 1000,
-            request$
-        }).subscribe(event => events.push(event));
+            request$,
+            onEvent: event => events.push(event)
+        }).subscribe();
         try {
             await waitFor(() => events.length >= 1);
             worker.quit$.next('done');
