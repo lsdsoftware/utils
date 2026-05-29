@@ -94,6 +94,25 @@ describe('worker-rotator', ({ test }) => {
             subscription.unsubscribe();
         }
     });
+    test('reports expiration before relieving workers', async () => {
+        const request$ = new rxjs.Subject;
+        const worker = makeTestWorker();
+        const events = [];
+        const subscription = makeWorkerRotator({
+            makeWorker: async () => worker,
+            workerTtlMs: 1,
+            request$,
+            onEvent: event => events.push(event)
+        }).subscribe();
+        try {
+            await waitFor(() => events.some(event => event.type == 'expired'));
+            await waitFor(() => events.some(event => event.type == 'relieved'));
+            assert.deepStrictEqual(events.slice(0, 3).map(event => event.type), ['hired', 'expired', 'relieved']);
+        }
+        finally {
+            subscription.unsubscribe();
+        }
+    });
 });
 function makeTestWorker() {
     const processRequests$ = new rxjs.Subject;

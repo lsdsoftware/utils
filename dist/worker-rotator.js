@@ -8,7 +8,7 @@ export function makeWorkerRotator({ makeWorker, workerTtlMs, request$, maxPendin
         if (maxPendingRequests !== Infinity && (!Number.isInteger(maxPendingRequests) || maxPendingRequests < 0)) {
             throw new RangeError('maxPendingRequests must be a non-negative integer or Infinity');
         }
-        return rxjs.defer(() => makeWorker()).pipe(rxjs.tap(worker => onEvent?.({ type: 'hired', worker })), rxjs.exhaustMap(worker => rxjs.NEVER.pipe(rxjs.startWith(worker), rxjs.takeUntil(rxjs.race(worker.quit$, rxjs.timer(workerTtlMs).pipe(rxjs.map(() => 'Worker TTL expired'))).pipe(rxjs.tap(reason => onEvent?.({ type: 'quit', worker, reason })))), rxjs.endWith(null), rxjs.finalize(() => {
+        return rxjs.defer(() => makeWorker()).pipe(rxjs.tap(worker => onEvent?.({ type: 'hired', worker })), rxjs.exhaustMap(worker => rxjs.NEVER.pipe(rxjs.startWith(worker), rxjs.takeUntil(rxjs.race(worker.quit$.pipe(rxjs.tap(reason => onEvent?.({ type: 'quit', worker, reason }))), rxjs.timer(workerTtlMs).pipe(rxjs.tap(() => onEvent?.({ type: 'expired', worker }))))), rxjs.endWith(null), rxjs.finalize(() => {
             worker.relieve();
             onEvent?.({ type: 'relieved', worker });
         }))), rxjs.repeat(), rxjs.share(), worker$ => request$.pipe(rxjs.window(worker$), rxjs.zipWith(worker$.pipe(rxjs.startWith(null))), rxjs.mergeScan((pending, [window$, worker]) => rxjs.concat(pending, window$).pipe(worker

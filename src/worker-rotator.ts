@@ -7,7 +7,7 @@ export interface Worker<R> {
 }
 
 export type WorkerRotatorEvent<W> = {
-  type: 'hired'|'relieved',
+  type: 'hired'|'expired'|'relieved',
   worker: W
 } | {
   type: 'quit'
@@ -45,12 +45,12 @@ export function makeWorkerRotator<R, W extends Worker<R>>({
           rxjs.startWith(worker),
           rxjs.takeUntil(
             rxjs.race(
-              worker.quit$,
+              worker.quit$.pipe(
+                rxjs.tap(reason => onEvent?.({ type: 'quit', worker, reason }))
+              ),
               rxjs.timer(workerTtlMs).pipe(
-                rxjs.map(() => 'Worker TTL expired')
+                rxjs.tap(() => onEvent?.({ type: 'expired', worker }))
               )
-            ).pipe(
-              rxjs.tap(reason => onEvent?.({ type: 'quit', worker, reason }))
             )
           ),
           rxjs.endWith(null),

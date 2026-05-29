@@ -5,7 +5,7 @@ export interface Worker<R> {
     quit$: rxjs.Observable<unknown>;
 }
 export type WorkerRotatorEvent<W> = {
-    type: 'hired' | 'relieved';
+    type: 'hired' | 'expired' | 'relieved';
     worker: W;
 } | {
     type: 'quit';
