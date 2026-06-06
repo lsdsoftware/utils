@@ -1,9 +1,15 @@
 import type { ChildProcessByStdio } from "child_process";
 import * as rxjs from "rxjs";
 import type { Readable, Writable } from "stream";
-import { WorkerRotatorEvent } from "./worker-rotator.js";
 export type CLIWorker = ChildProcessByStdio<Writable, Readable, null>;
-export type CLIWorkerRotatorEvent = WorkerRotatorEvent<CLIWorker>;
+export type CLIWorkerRotatorEvent = {
+    type: 'hired' | 'relieved';
+    worker: CLIWorker;
+} | {
+    type: 'quit';
+    worker: CLIWorker;
+    reason: unknown;
+};
 export interface CLIRequest {
     input: string;
     output$: rxjs.SubjectLike<string>;

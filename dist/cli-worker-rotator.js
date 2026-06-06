@@ -1,18 +1,21 @@
 import * as rxjs from "rxjs";
 import { makeLineReader } from "./line-reader.js";
-import { makeWorkerRotator } from "./worker-rotator.js";
 /**
  * Rotates child processes that communicate over stdin/stdout using a
  * line-oriented request/response protocol, such as JSONL.
  * See the README for the protocol and lifecycle contract.
  */
-export function makeCLIWorkerRotator({ spawnWorkerProcess, workerTtlMs, request$, maxPendingRequests, onEvent }) {
-    return makeWorkerRotator({
-        makeWorker: () => makeWorker(spawnWorkerProcess),
-        workerTtlMs,
-        request$,
-        maxPendingRequests,
-        onEvent: event => onEvent?.({ ...event, worker: event.worker.child })
+export function makeCLIWorkerRotator({ spawnWorkerProcess, workerTtlMs, request$, maxPendingRequests = Infinity, onEvent }) {
+    return rxjs.defer(() => {
+        if (maxPendingRequests !== Infinity && (!Number.isInteger(maxPendingRequests) || maxPendingRequests < 0)) {
+            throw new RangeError('maxPendingRequests must be a non-negative integer or Infinity');
+        }
+        return rxjs.defer(() => makeWorker(spawnWorkerProcess)).pipe(rxjs.tap(worker => onEvent?.({ type: 'hired', worker: worker.child })), rxjs.exhaustMap(worker => rxjs.NEVER.pipe(rxjs.startWith(worker), rxjs.takeUntil(rxjs.race(worker.quit$, rxjs.timer(workerTtlMs).pipe(rxjs.map(() => 'Worker TTL expired'))).pipe(rxjs.tap(reason => onEvent?.({ type: 'quit', worker: worker.child, reason })))), rxjs.endWith(null), rxjs.finalize(() => {
+            worker.relieve();
+            onEvent?.({ type: 'relieved', worker: worker.child });
+        }))), rxjs.repeat(), rxjs.share(), worker$ => request$.pipe(rxjs.window(worker$), rxjs.zipWith(worker$.pipe(rxjs.startWith(null))), rxjs.mergeScan((pending, [window$, worker]) => rxjs.concat(pending, window$).pipe(worker
+            ? request$ => worker.process(request$).pipe(rxjs.startWith([]))
+            : request$ => request$.pipe(bufferRequests(maxPendingRequests))), []), rxjs.ignoreElements()));
     });
 }
 async function makeWorker(spawn) {
@@ -67,4 +70,13 @@ function writeLn(stream, line) {
             subscriber.error(err);
         }
     });
+}
+function bufferRequests(maxPendingRequests) {
+    return request$ => request$.pipe(rxjs.reduce((pending, request) => {
+        if (pending.length >= maxPendingRequests) {
+            throw new Error(`Worker rotator exceeded max pending requests (${maxPendingRequests})`);
+        }
+        pending.push(request);
+        return pending;
+    }, []));
 }
