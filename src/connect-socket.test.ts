@@ -88,4 +88,111 @@ describe('connect-socket', ({ test }) => {
       syncBuiltinESMExports()
     }
   })
+
+  test('passes an already-aborted caller signal to the socket', async () => {
+    const require = createRequire(import.meta.url)
+    const net = require('net') as typeof import('net')
+    const originalCreateConnection = net.createConnection
+    const callerAbortCtl = new AbortController()
+    const reason = new Error('caller abort')
+    let signal: AbortSignal | undefined
+
+    try {
+      callerAbortCtl.abort(reason)
+      net.createConnection = ((options: { signal?: AbortSignal }) => {
+        signal = options.signal
+
+        return Object.assign(new EventEmitter(), {
+          setEncoding: () => undefined
+        })
+      }) as unknown as typeof originalCreateConnection
+      syncBuiltinESMExports()
+
+      const { connectSocket } = await import(`./connect-socket.js?pre-aborted-test=${Date.now()}`)
+      const subscription = connectSocket({ port: 80, signal: callerAbortCtl.signal }).subscribe()
+
+      assert(signal)
+      expect(signal.aborted, true)
+      assert.strictEqual(signal.reason, reason)
+
+      subscription.unsubscribe()
+    } finally {
+      net.createConnection = originalCreateConnection
+      syncBuiltinESMExports()
+    }
+  })
+
+  test('forwards caller abort to pending socket', async () => {
+    const require = createRequire(import.meta.url)
+    const net = require('net') as typeof import('net')
+    const originalCreateConnection = net.createConnection
+    const callerAbortCtl = new AbortController()
+    const reason = new Error('caller abort')
+    let signal: AbortSignal | undefined
+
+    try {
+      net.createConnection = ((options: { signal?: AbortSignal }) => {
+        signal = options.signal
+
+        return Object.assign(new EventEmitter(), {
+          setEncoding: () => undefined
+        })
+      }) as unknown as typeof originalCreateConnection
+      syncBuiltinESMExports()
+
+      const { connectSocket } = await import(`./connect-socket.js?caller-abort-test=${Date.now()}`)
+      const subscription = connectSocket({ port: 80, signal: callerAbortCtl.signal }).subscribe()
+
+      assert(signal)
+      expect(signal.aborted, false)
+
+      callerAbortCtl.abort(reason)
+
+      expect(signal.aborted, true)
+      assert.strictEqual(signal.reason, reason)
+
+      subscription.unsubscribe()
+    } finally {
+      net.createConnection = originalCreateConnection
+      syncBuiltinESMExports()
+    }
+  })
+
+  test('stops listening to caller abort after socket close', async () => {
+    const require = createRequire(import.meta.url)
+    const net = require('net') as typeof import('net')
+    const originalCreateConnection = net.createConnection
+    const callerAbortCtl = new AbortController()
+    let socket: EventEmitter | undefined
+    let signal: AbortSignal | undefined
+
+    try {
+      net.createConnection = ((options: { signal?: AbortSignal }) => {
+        signal = options.signal
+        socket = Object.assign(new EventEmitter(), {
+          setEncoding: () => undefined
+        })
+
+        return socket
+      }) as unknown as typeof originalCreateConnection
+      syncBuiltinESMExports()
+
+      const { connectSocket } = await import(`./connect-socket.js?close-cleanup-test=${Date.now()}`)
+      const subscription = connectSocket({ port: 80, signal: callerAbortCtl.signal }).subscribe()
+
+      assert(socket)
+      assert(signal)
+      socket.emit('close', false)
+      await Promise.resolve()
+
+      callerAbortCtl.abort(new Error('late caller abort'))
+
+      expect(signal.aborted, false)
+
+      subscription.unsubscribe()
+    } finally {
+      net.createConnection = originalCreateConnection
+      syncBuiltinESMExports()
+    }
+  })
 })

@@ -26,7 +26,52 @@ const result = await semaphore.runTask(async () => {
 
 
 ### Connect Socket
-Observable wrapper for net.connect (see connect-socket.test.ts for usage)
+Observable wrapper for `net.createConnection`.
+
+```typescript
+import { connectSocket } from "@lsdsoftware/utils"
+import * as rxjs from "rxjs"
+
+const abortCtl = new AbortController()
+
+const connection = await rxjs.firstValueFrom(
+  connectSocket({
+    host: "example.com",
+    port: 80,
+    encoding: "utf8",
+    signal: abortCtl.signal
+  })
+)
+
+connection.socket.write("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n")
+
+connection.data$.pipe(
+  rxjs.takeUntil(connection.close$)
+).subscribe(chunk => {
+  console.log(chunk)
+})
+```
+
+`connectSocket(options)` is cold. Each subscription creates a new `net.Socket`, starts a connection, and emits one `Connection` when the socket connects. If the socket emits `error` before `connect`, the observable errors.
+
+`options` are passed through to `net.createConnection(options)`, with one addition:
+
+- `encoding` calls `socket.setEncoding(encoding)` before the connection result is emitted.
+
+The returned `Connection` contains:
+
+- `socket`: the underlying `net.Socket`; callers own protocol writes and graceful shutdown after connection.
+- `data$`: socket `data` events, completed when the readable side emits `end`.
+- `error$`: socket `error` events.
+- `timeout$`: socket `timeout` events. Like `net.Socket`, timeout only notifies; callers must close the socket themselves.
+- `close$`: one-shot socket `close` event, replayable to late subscribers through the same close promise.
+
+Cancellation:
+
+- Unsubscribing before the connection is established aborts the pending socket connection.
+- Passing `signal` forwards caller cancellation into the pending socket connection, including an already-aborted signal and its abort reason.
+- Caller abort forwarding stops once the socket closes, so long-lived caller signals do not retain closed sockets.
+- After a `Connection` is emitted, callers own socket shutdown. Use the protocol's normal close command, `socket.end()`, or `socket.destroy()` as appropriate.
 
 
 ### CLI Worker Rotator
