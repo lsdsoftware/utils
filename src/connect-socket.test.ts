@@ -1,5 +1,7 @@
 import { describe, expect } from "@service-broker/test-utils"
 import assert from "assert"
+import { EventEmitter } from "events"
+import { createRequire, syncBuiltinESMExports } from "module"
 import * as rxjs from "rxjs"
 import { connectSocket } from './connect-socket.js'
 
@@ -51,4 +53,39 @@ describe('connect-socket', ({ test }) => {
       expect(closedWithError, false)
     })
   )
+
+  test('aborts pending socket on unsubscribe', async () => {
+    const require = createRequire(import.meta.url)
+    const net = require('net') as typeof import('net')
+    const originalCreateConnection = net.createConnection
+    let signal: AbortSignal | undefined
+    let aborts = 0
+
+    try {
+      net.createConnection = ((options: { signal?: AbortSignal }) => {
+        assert(typeof options == 'object')
+        signal = options.signal
+        signal?.addEventListener('abort', () => aborts++)
+
+        return Object.assign(new EventEmitter(), {
+          setEncoding: () => undefined
+        })
+      }) as unknown as typeof originalCreateConnection
+      syncBuiltinESMExports()
+
+      const { connectSocket } = await import(`./connect-socket.js?abort-test=${Date.now()}`)
+      const subscription = connectSocket({ port: 80 }).subscribe()
+
+      assert(signal)
+      expect(signal.aborted, false)
+
+      subscription.unsubscribe()
+
+      expect(signal.aborted, true)
+      expect(aborts, 1)
+    } finally {
+      net.createConnection = originalCreateConnection
+      syncBuiltinESMExports()
+    }
+  })
 })

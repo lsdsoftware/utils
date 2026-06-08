@@ -1,11 +1,16 @@
 import { createConnection } from "net";
 import * as rxjs from "rxjs";
+import { finalizeWithReason } from "./finalize-with-reason.js";
 export function connectSocket(options) {
     return rxjs.defer(() => {
-        const sock = createConnection(options);
+        const abortCtl = new AbortController();
+        const sock = createConnection({ ...options, signal: abortCtl.signal });
         if (options.encoding)
             sock.setEncoding(options.encoding);
-        return rxjs.race(rxjs.fromEvent(sock, 'error').pipe(rxjs.map(err => { throw err; })), rxjs.fromEvent(sock, 'connect').pipe(rxjs.take(1), rxjs.map(() => makeConnection(sock))));
+        return rxjs.race(rxjs.fromEvent(sock, 'error').pipe(rxjs.map(err => { throw err; })), rxjs.fromEvent(sock, 'connect').pipe(rxjs.take(1), rxjs.map(() => makeConnection(sock)))).pipe(finalizeWithReason(reason => {
+            if (reason == 'unsubscribe')
+                abortCtl.abort();
+        }));
     });
 }
 function makeConnection(sock) {
